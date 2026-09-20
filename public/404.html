@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Página não encontrada</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <ul>
+        <li><a href="/index.html" class="nav-btn">Início</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="section" style="text-align:center; padding-top: 4rem;">
+    <h1 style="font-size: 4rem; margin-bottom: 0.5rem;">404</h1>
+    <h2>Página não encontrada</h2>
+    <p style="margin: 1rem 0 2rem;">O endereço que procuras não existe ou foi movido.</p>
+    <a href="/index.html" class="btn-primary" style="text-decoration:none; display:inline-block;">Voltar ao início</a>
+  </main>
+
+  <script>
+    // aplica o tema guardado mesmo nesta página estática de erro
+    if (localStorage.getItem("theme") === "light") {
+      document.body.classList.add("light");
+    }
+  </script>
+</body>
+</html>

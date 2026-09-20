@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Início</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+
+        <aside class="w-64 bg-white shadow-md flex flex-col justify-between">
+            <div>
+                <div class="p-6 font-bold text-xl text-blue-600">MeuDashboard</div>
+                <nav class="mt-6">
+                    <a href="index.html" class="block py-2.5 px-4 rounded bg-blue-50 text-blue-600 font-semibold">Início</a>
+                    <a href="projects.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Projetos</a>
+                    <a href="profile.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Perfil</a>
+                    <a href="/index.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Ver site público</a>
+                </nav>
+            </div>
+            <button id="logout-btn" class="m-4 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100">Sair</button>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <h1 class="text-2xl font-bold text-gray-800">Bem-vindo, <span id="user-name">...</span></h1>
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-gray-500 text-sm">Total de Projetos</h3>
+                    <p class="text-2xl font-bold text-gray-800 mt-2" id="stat-projects">...</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-gray-500 text-sm">Tecnologias Usadas</h3>
+                    <p class="text-2xl font-bold text-gray-800 mt-2" id="stat-tech">...</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-gray-500 text-sm">Sessão iniciada como</h3>
+                    <p class="text-lg font-bold text-gray-800 mt-2 truncate" id="stat-email">...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { requireAuth } from "../js/guard.js";
+        import { apiFetch } from "../js/api.js";
+        import { logout } from "../js/auth.js";
+
+        document.getElementById("logout-btn").addEventListener("click", logout);
+
+        (async () => {
+            const user = await requireAuth();
+            if (!user) return; // já foi redirecionado para o login
+
+            document.getElementById("user-name").textContent = user.name;
+            document.getElementById("stat-email").textContent = user.email;
+
+            try {
+                const [projects, technologies] = await Promise.all([
+                    apiFetch("/projects"),
+                    apiFetch("/technologies"),
+                ]);
+                document.getElementById("stat-projects").textContent = projects.length;
+                document.getElementById("stat-tech").textContent = technologies.length;
+            } catch (err) {
+                document.getElementById("stat-projects").textContent = "-";
+                document.getElementById("stat-tech").textContent = "-";
+            }
+        })();
+    </script>
+</body>
+</html>

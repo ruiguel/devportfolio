@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Projetos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+
+        <aside class="w-64 bg-white shadow-md flex flex-col justify-between">
+            <div>
+                <div class="p-6 font-bold text-xl text-blue-600">MeuDashboard</div>
+                <nav class="mt-6">
+                    <a href="index.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Início</a>
+                    <a href="projects.html" class="block py-2.5 px-4 rounded bg-blue-50 text-blue-600 font-semibold">Projetos</a>
+                    <a href="profile.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Perfil</a>
+                    <a href="/index.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Ver site público</a>
+                </nav>
+            </div>
+            <button id="logout-btn" class="m-4 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100">Sair</button>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Projetos</h1>
+                <a href="project-form.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Novo Projeto</a>
+            </div>
+
+            <div id="feedback" class="hidden mb-4 text-sm rounded-lg px-3 py-2"></div>
+
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b">
+                            <th class="p-4 text-gray-600 font-semibold">Nome do Projeto</th>
+                            <th class="p-4 text-gray-600 font-semibold">Tecnologias</th>
+                            <th class="p-4 text-gray-600 font-semibold">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projects-tbody">
+                        <tr>
+                            <td colspan="3" class="p-4 text-gray-500">A carregar projetos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { requireAuth } from "../js/guard.js";
+        import { apiFetch } from "../js/api.js";
+        import { logout } from "../js/auth.js";
+
+        document.getElementById("logout-btn").addEventListener("click", logout);
+
+        const tbody = document.getElementById("projects-tbody");
+        const feedback = document.getElementById("feedback");
+
+        function showFeedback(message, isError = false) {
+            feedback.textContent = message;
+            feedback.classList.remove("hidden", "bg-red-50", "text-red-600", "bg-green-50", "text-green-700");
+            feedback.classList.add(isError ? "bg-red-50" : "bg-green-50", isError ? "text-red-600" : "text-green-700");
+        }
+
+        async function loadProjects() {
+            try {
+                const projects = await apiFetch("/projects");
+
+                if (!projects.length) {
+                    tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-gray-500">Ainda não existem projetos registados.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = projects.map(p => `
+                    <tr class="border-b" data-id="${p.id}">
+                        <td class="p-4 text-gray-800">${p.title}</td>
+                        <td class="p-4 text-gray-500 text-sm">${p.techs || "-"}</td>
+                        <td class="p-4">
+                            <a href="project-form.html?id=${p.id}" class="text-blue-600 hover:underline mr-3">Editar</a>
+                            <button class="delete-btn text-red-600 hover:underline" data-id="${p.id}">Eliminar</button>
+                        </td>
+                    </tr>
+                `).join("");
+
+                tbody.querySelectorAll(".delete-btn").forEach((btn) => {
+                    btn.addEventListener("click", () => handleDelete(btn.dataset.id));
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-red-600">Erro ao carregar projetos. Confirma que o servidor está a correr.</td></tr>`;
+            }
+        }
+
+        async function handleDelete(id) {
+            if (!confirm("Tens a certeza que queres eliminar este projeto?")) return;
+            try {
+                await apiFetch(`/projects/${id}`, { method: "DELETE" });
+                showFeedback("Projeto eliminado com sucesso.");
+                loadProjects();
+            } catch (err) {
+                showFeedback(err.message || "Erro ao eliminar o projeto.", true);
+            }
+        }
+
+        (async () => {
+            const user = await requireAuth();
+            if (!user) return;
+            loadProjects();
+        })();
+    </script>
+</body>
+</html>

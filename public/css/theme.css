@@ -1,0 +1,16 @@
+:root {
+  --bg: #0f172a;
+  --bg-light: #f8fafc;
+  --text: #e5e7eb;
+  --text-dark: #1e293b;
+  --accent: #38bdf8;
+  --card-bg: rgba(15, 23, 42, 0.8);
+  --border-color: rgba(148, 163, 184, 0.4);
+}
+
+body.light {
+  --bg: var(--bg-light);
+  --text: var(--text-dark);
+  --card-bg: #ffffff;
+  --border-color: #e5e7eb;
+}

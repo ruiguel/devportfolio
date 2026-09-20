@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Projeto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+
+        <aside class="w-64 bg-white shadow-md flex flex-col justify-between">
+            <div>
+                <div class="p-6 font-bold text-xl text-blue-600">MeuDashboard</div>
+                <nav class="mt-6">
+                    <a href="index.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Início</a>
+                    <a href="projects.html" class="block py-2.5 px-4 rounded bg-blue-50 text-blue-600 font-semibold">Projetos</a>
+                    <a href="profile.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Perfil</a>
+                    <a href="/index.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Ver site público</a>
+                </nav>
+            </div>
+            <button id="logout-btn" class="m-4 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100">Sair</button>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6" id="page-title">Criar Novo Projeto</h1>
+
+            <div class="bg-white p-6 rounded-lg shadow max-w-xl">
+                <div id="form-error" class="hidden mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2"></div>
+                <form id="project-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Nome do Projeto</label>
+                        <input type="text" id="title" name="title" required class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Insira o nome...">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Descrição</label>
+                        <textarea id="description" name="description" required rows="3" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Detalhes do projeto..."></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Descrição longa (opcional)</label>
+                        <textarea id="longDescription" name="longDescription" rows="4" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Detalhes técnicos, tecnologias usadas, desafios..."></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Tecnologias (separadas por vírgula)</label>
+                        <input type="text" id="technologies" name="technologies" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: HTML, CSS, JavaScript, Node.js">
+                        <p class="text-xs text-gray-400 mt-1">Tecnologias novas são criadas automaticamente.</p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Imagem (URL, opcional)</label>
+                        <input type="text" id="imageUrl" name="imageUrl" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://...">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Link do Repositório GitHub (opcional)</label>
+                        <input type="text" id="githubUrl" name="githubUrl" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://github.com/...">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Link do Projeto Online (opcional)</label>
+                        <input type="text" id="liveUrl" name="liveUrl" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://... ou projetos/NomeDoProjeto/index.html">
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <a href="projects.html" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">Cancelar</a>
+                        <button type="submit" id="submit-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { requireAuth } from "../js/guard.js";
+        import { apiFetch } from "../js/api.js";
+        import { logout } from "../js/auth.js";
+
+        document.getElementById("logout-btn").addEventListener("click", logout);
+
+        const form = document.getElementById("project-form");
+        const errorBox = document.getElementById("form-error");
+        const submitBtn = document.getElementById("submit-btn");
+        const pageTitle = document.getElementById("page-title");
+
+        const params = new URLSearchParams(window.location.search);
+        const editId = params.get("id");
+
+        function showError(message) {
+            errorBox.textContent = message;
+            errorBox.classList.remove("hidden");
+        }
+
+        async function loadExistingProject() {
+            pageTitle.textContent = "Editar Projeto";
+            submitBtn.textContent = "Guardar alterações";
+            try {
+                const p = await apiFetch(`/projects/${editId}`);
+                document.getElementById("title").value = p.title || "";
+                document.getElementById("description").value = p.description || "";
+                document.getElementById("longDescription").value = p.longDescription || "";
+                document.getElementById("technologies").value = p.techs || "";
+                document.getElementById("imageUrl").value = p.imageUrl || "";
+                document.getElementById("githubUrl").value = p.githubUrl || "";
+                document.getElementById("liveUrl").value = p.liveUrl || "";
+            } catch (err) {
+                showError("Não foi possível carregar este projeto.");
+            }
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            errorBox.classList.add("hidden");
+
+            const title = document.getElementById("title").value.trim();
+            const description = document.getElementById("description").value.trim();
+            const longDescription = document.getElementById("longDescription").value.trim();
+            const technologies = document.getElementById("technologies").value
+                .split(",")
+                .map((t) => t.trim())
+                .filter(Boolean);
+            const imageUrl = document.getElementById("imageUrl").value.trim();
+            const githubUrl = document.getElementById("githubUrl").value.trim();
+            const liveUrl = document.getElementById("liveUrl").value.trim();
+
+            if (!title || !description) {
+                showError("Preenche o nome e a descrição.");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "A guardar...";
+
+            const payload = { title, description, longDescription, technologies, imageUrl, githubUrl, liveUrl };
+
+            try {
+                if (editId) {
+                    await apiFetch(`/projects/${editId}`, { method: "PUT", body: JSON.stringify(payload) });
+                } else {
+                    await apiFetch("/projects", { method: "POST", body: JSON.stringify(payload) });
+                }
+                window.location.href = "projects.html";
+            } catch (err) {
+                showError(err.message || "Erro ao guardar o projeto. Confirma que o servidor está a correr.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = editId ? "Guardar alterações" : "Guardar";
+            }
+        });
+
+        (async () => {
+            const user = await requireAuth();
+            if (!user) return;
+            if (editId) await loadExistingProject();
+        })();
+    </script>
+</body>
+</html>

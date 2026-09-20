@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+
+        <aside class="w-64 bg-white shadow-md flex flex-col justify-between">
+            <div>
+                <div class="p-6 font-bold text-xl text-blue-600">MeuDashboard</div>
+                <nav class="mt-6">
+                    <a href="index.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Início</a>
+                    <a href="projects.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Projetos</a>
+                    <a href="profile.html" class="block py-2.5 px-4 rounded bg-blue-50 text-blue-600 font-semibold">Perfil</a>
+                    <a href="/index.html" class="block py-2.5 px-4 rounded text-gray-600 hover:bg-gray-50">Ver site público</a>
+                </nav>
+            </div>
+            <button id="logout-btn" class="m-4 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100">Sair</button>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">Meu Perfil</h1>
+
+            <div class="bg-white p-6 rounded-lg shadow max-w-xl">
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-16 h-16 bg-blue-500 text-white rounded-full flex items-center justify-center text-xl font-bold" id="avatar-initial">U</div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800" id="display-name">A carregar...</h2>
+                        <p class="text-gray-500 text-sm" id="display-email"></p>
+                    </div>
+                </div>
+
+                <div id="feedback" class="hidden mb-4 text-sm rounded-lg px-3 py-2"></div>
+
+                <form id="profile-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Nome Completo</label>
+                        <input type="text" id="name" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="email" disabled class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-500">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Biografia</label>
+                        <textarea id="bio" rows="3" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">GitHub (URL)</label>
+                        <input type="text" id="githubUrl" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://github.com/...">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">LinkedIn (URL)</label>
+                        <input type="text" id="linkedinUrl" class="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://linkedin.com/in/...">
+                    </div>
+                    <button type="submit" id="submit-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Atualizar Perfil</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { requireAuth } from "../js/guard.js";
+        import { apiFetch } from "../js/api.js";
+        import { logout } from "../js/auth.js";
+
+        document.getElementById("logout-btn").addEventListener("click", logout);
+
+        const form = document.getElementById("profile-form");
+        const feedback = document.getElementById("feedback");
+        const submitBtn = document.getElementById("submit-btn");
+
+        function showFeedback(message, isError = false) {
+            feedback.textContent = message;
+            feedback.classList.remove("hidden", "bg-red-50", "text-red-600", "bg-green-50", "text-green-700");
+            feedback.classList.add(isError ? "bg-red-50" : "bg-green-50", isError ? "text-red-600" : "text-green-700");
+        }
+
+        function fillForm(user) {
+            document.getElementById("display-name").textContent = user.name;
+            document.getElementById("display-email").textContent = user.email;
+            document.getElementById("avatar-initial").textContent = (user.name || "U").charAt(0).toUpperCase();
+            document.getElementById("name").value = user.name || "";
+            document.getElementById("email").value = user.email || "";
+            document.getElementById("bio").value = user.bio || "";
+            document.getElementById("githubUrl").value = user.githubUrl || "";
+            document.getElementById("linkedinUrl").value = user.linkedinUrl || "";
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = "A guardar...";
+
+            try {
+                await apiFetch("/users/profile", {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        name: document.getElementById("name").value.trim(),
+                        bio: document.getElementById("bio").value.trim(),
+                        githubUrl: document.getElementById("githubUrl").value.trim(),
+                        linkedinUrl: document.getElementById("linkedinUrl").value.trim(),
+                    }),
+                });
+                showFeedback("Perfil atualizado com sucesso.");
+                const updated = await apiFetch("/users/profile");
+                fillForm(updated);
+            } catch (err) {
+                showFeedback(err.message || "Erro ao atualizar o perfil.", true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Atualizar Perfil";
+            }
+        });
+
+        (async () => {
+            const user = await requireAuth();
+            if (!user) return;
+            fillForm(user);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <ul>
+        <li><a href="index.html" class="nav-btn">Início</a></li>
+      </ul>
+      <button id="theme-toggle" class="btn-toggle"></button>
+    </nav>
+  </header>
+
+  <main class="section" style="max-width: 450px; margin-top: 5vh;">
+    <h2>Autenticação</h2>
+    <p>Entre com as suas credenciais para aceder ao Dashboard:</p>
+    
+    <form id="login-form" class="contact-form" style="margin-top: 1.5rem;">
+      <input type="email" id="email" placeholder="E-mail" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit" class="btn-primary">Entrar</button>
+      <p id="form-feedback" class="feedback"></p>
+    </form>
+
+    <p style="margin-top: 1.5rem;">
+      Ainda não tem conta? <a href="register.html" style="color: var(--accent);">Registe-se aqui</a>
+    </p>
+  </main>
+
+  <script src="js/main.js" type="module"></script>
+</body>
+</html>

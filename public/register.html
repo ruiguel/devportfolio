@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registo</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <header class="header">
+    <nav class="nav">
+      <ul>
+        <li><a href="index.html" class="nav-btn">Início</a></li>
+      </ul>
+      <button id="theme-toggle" class="btn-toggle"></button>
+    </nav>
+  </header>
+
+  <main class="section" style="max-width: 450px; margin-top: 5vh;">
+    <h2>Criar Conta</h2>
+    <p>Preencha os dados abaixo para se registar:</p>
+    
+    <form id="register-form" class="contact-form" style="margin-top: 1.5rem;">
+      <input type="text" id="name" placeholder="Nome Completo" required />
+      <input type="email" id="email" placeholder="E-mail" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit" class="btn-primary">Registar</button>
+      <p id="form-feedback" class="feedback"></p>
+    </form>
+
+    <p style="margin-top: 1.5rem;">
+      Já tem conta? <a href="login.html" style="color: var(--accent);">Faça login aqui</a>
+    </p>
+  </main>
+
+  <script src="js/main.js" type="module"></script>
+</body>
+</html>
