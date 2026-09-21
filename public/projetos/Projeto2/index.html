@@ -1,25 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-PT">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-    content="width=device-width,inicial-scale=1.0">
-    <title>Alert</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projeto 2 - Interação com o Utilizador</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<>
-    <div id="resultado">
-    <h1>Alert</h1>    
+<body>
+  <a href="../../portfolios.html" class="voltar">&larr; Voltar ao portfólio</a>
 
-    <button onclick="showAlert()">clique para alert</button>
-    <button onclick="utilizador()">clique para inserir um nome</button>
+  <main>
+    <h1>Interação com o Utilizador</h1>
+    <p class="intro">
+      Exercício de manipulação do DOM: ler dados introduzidos pelo utilizador
+      e responder na página, sem depender de janelas de alerta do browser.
+    </p>
 
-    <button onclick="Soma()">clique para somar</button>
-    <button onclick="Subtracao()">clique para subtrair</button>
-    <button onclick="Multiplicacao()">clique para multiplicar</button>
-    <button onclick="Divisao()">clique para dividir</button>
-    
-    <div id="resultado"></div>
-     <script src="script.js "></script>
-     </body>
-    </html>
+    <section class="cartao">
+      <h2>Cumprimento personalizado</h2>
+      <div class="linha">
+        <label for="nome">O teu nome</label>
+        <input type="text" id="nome" placeholder="Escreve o teu nome..." />
+        <button id="btn-cumprimentar">Cumprimentar</button>
+      </div>
+      <p id="resultado-nome" class="resultado" aria-live="polite"></p>
+    </section>
 
+    <section class="cartao">
+      <h2>Calculadora</h2>
+      <div class="linha">
+        <label for="num1">Primeiro número</label>
+        <input type="number" id="num1" placeholder="Ex: 10" />
+      </div>
+      <div class="linha">
+        <label for="num2">Segundo número</label>
+        <input type="number" id="num2" placeholder="Ex: 5" />
+      </div>
+      <div class="linha">
+        <label for="operacao">Operação</label>
+        <select id="operacao">
+          <option value="soma">Somar (+)</option>
+          <option value="subtracao">Subtrair (-)</option>
+          <option value="multiplicacao">Multiplicar (×)</option>
+          <option value="divisao">Dividir (÷)</option>
+        </select>
+        <button id="btn-calcular">Calcular</button>
+      </div>
+      <p id="resultado-calculo" class="resultado" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
